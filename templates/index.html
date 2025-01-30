@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>과자 가격 비교</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>과자 가격 비교</h1>
@@ -14,15 +15,22 @@
 
     {% if results %}
     <h2>검색 결과</h2>
-    <ul>
+    <table>
+        <tr>
+            <th>쇼핑몰</th>
+            <th>상품명</th>
+            <th>가격</th>
+            <th>링크</th>
+        </tr>
         {% for item in results %}
-            <li>
-                <strong>{{ item.쇼핑몰 }}</strong> - 
-                {{ item.상품명 }}: {{ item.가격 }}원 
-                <a href="{{ item.링크 }}" target="_blank">[구매하기]</a>
-            </li>
+            <tr>
+                <td>{{ item.쇼핑몰 }}</td>
+                <td>{{ item.상품명 }}</td>
+                <td class="{% if loop.first %}lowest-price{% endif %}">{{ item.가격 }}원</td>
+                <td><a href="{{ item.링크 }}" class="shop-link" target="_blank">구매하기</a></td>
+            </tr>
         {% endfor %}
-    </ul>
+    </table>
     {% endif %}
 </body>
 </html>
