@@ -19,38 +19,19 @@
 <body>
     <h1>과자 가격 비교</h1>
     
-    <!-- 검색 폼 -->
-    <form id="searchForm">
+    <!-- 🔹 검색 폼 (기본 제출 방지) -->
+    <form id="searchForm" onsubmit="return false;">
         <input type="text" id="product" placeholder="상품명을 입력하세요" required>
         <button type="submit">검색</button>
     </form>
 
-    <!-- 검색 결과 표시 -->
-    <div id="results">
-        {% if results %}
-        <h2>검색 결과</h2>
-        <table>
-            <tr>
-                <th>쇼핑몰</th>
-                <th>상품명</th>
-                <th>가격</th>
-                <th>링크</th>
-            </tr>
-            {% for item in results %}
-                <tr>
-                    <td>{{ item.쇼핑몰 }}</td>
-                    <td>{{ item.상품명 }}</td>
-                    <td class="{% if loop.first %}lowest-price{% endif %}">{{ item.가격 }}원</td>
-                    <td><a href="{{ item.링크 }}" class="shop-link" target="_blank">구매하기</a></td>
-                </tr>
-            {% endfor %}
-        </table>
-        {% endif %}
-    </div>
+    <!-- 🔹 검색 결과 표시 -->
+    <div id="results"></div>
 
     <script>
     document.getElementById("searchForm").onsubmit = function(event) {
-        event.preventDefault();
+        event.preventDefault(); // 🔹 기본 제출 방지
+
         let query = document.getElementById("product").value;
 
         fetch(`/search?product=${encodeURIComponent(query)}`)
