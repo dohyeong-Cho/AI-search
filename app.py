@@ -11,15 +11,9 @@ NAVER_CLIENT_SECRET = "hFGQkC2ErG"
 def strip_tags(text):
     return re.sub(r"<[^>]+>", "", text)
 
-# 🔹 "과자(스낵류)" 카테고리 ID 목록 (네이버 쇼핑 API 기준)
-VALID_CATEGORY_IDS = ["50000169", "50000205", "50000206"]  # 예: 스낵, 감자칩, 과자
-
-# 🔹 포함할 키워드 (과자 관련 제품만 선택)
-INCLUDE_KEYWORDS = ["과자", "스낵", "칩", "감자칩", "포테이토칩", "옥수수칩"]
-
-# 🔹 네이버 쇼핑 API에서 "과자 카테고리" 제품만 가져오는 함수
+# 🔹 네이버 쇼핑 API에서 제품 정보 가져오기 (디버깅 추가)
 def get_naver_price(query):
-    url = f"https://openapi.naver.com/v1/search/shop.json?query={query}&display=20&sort=asc"
+    url = f"https://openapi.naver.com/v1/search/shop.json?query={query}&display=10&sort=asc"
     headers = {
         "X-Naver-Client-Id": NAVER_CLIENT_ID,
         "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
@@ -33,30 +27,24 @@ def get_naver_price(query):
         
         for item in items:
             title = strip_tags(item["title"])  # 🔹 HTML 태그 제거
-            category = item.get("category4", "")  # 🔹 제품의 카테고리 ID 가져오기
+            category = item.get("category4", "없음")  # 🔹 카테고리 ID 가져오기 (없으면 "없음" 표시)
             mall_name = item["mallName"]
             price = int(item["lprice"])
             link = item["link"]
 
-            # ✅ 필터링 기준 (1) 카테고리 ID가 과자(스낵류)인지 확인
-            is_valid_category = category in VALID_CATEGORY_IDS if category else True
+            # 🔹 검색 결과 디버깅용 출력 (category4 값 확인)
+            print(f"상품명: {title}, 쇼핑몰: {mall_name}, 가격: {price}원, 카테고리: {category}")
 
-            # ✅ 필터링 기준 (2) 제품명이 "과자" 관련 제품인지 확인
-            has_valid_keyword = any(keyword in title for keyword in INCLUDE_KEYWORDS)
+            # ✅ 카테고리 값 확인을 위해 필터링 없이 모든 데이터를 반환
+            results.append({
+                "쇼핑몰": mall_name,
+                "상품명": title,
+                "가격": price,
+                "카테고리": category,
+                "링크": link
+            })
 
-            # 🔹 카테고리 정보가 없으면 키워드 필터링 적용
-            if is_valid_category or has_valid_keyword:
-                results.append({
-                    "쇼핑몰": mall_name,
-                    "상품명": title,
-                    "가격": price,
-                    "링크": link
-                })
-
-        # ✅ 최저가 기준 정렬 (가격 순으로 정렬)
-        results = sorted(results, key=lambda x: x["가격"])
-
-        return results  # 🔹 필터링된 결과만 반환
+        return results  # 🔹 필터링 없이 결과 반환하여 category4 값 확인
     return []
 
 # 🔹 메인 페이지 (검색 폼 제공)
