@@ -12,7 +12,10 @@ def strip_tags(text):
     return re.sub(r"<[^>]+>", "", text)
 
 # 🔹 "과자(스낵류)" 카테고리 ID 목록 (네이버 쇼핑 API 기준)
-VALID_CATEGORY_IDS = ["50000169", "50000205", "50000206"]  # (예: 스낵, 감자칩, 과자)
+VALID_CATEGORY_IDS = ["50000169", "50000205", "50000206"]  # 예: 스낵, 감자칩, 과자
+
+# 🔹 포함할 키워드 (과자 관련 제품만 선택)
+INCLUDE_KEYWORDS = ["과자", "스낵", "칩", "감자칩", "포테이토칩", "옥수수칩"]
 
 # 🔹 네이버 쇼핑 API에서 "과자 카테고리" 제품만 가져오는 함수
 def get_naver_price(query):
@@ -35,8 +38,14 @@ def get_naver_price(query):
             price = int(item["lprice"])
             link = item["link"]
 
-            # ✅ 카테고리 ID가 과자(스낵류)인지 확인
-            if category in VALID_CATEGORY_IDS:
+            # ✅ 필터링 기준 (1) 카테고리 ID가 과자(스낵류)인지 확인
+            is_valid_category = category in VALID_CATEGORY_IDS if category else True
+
+            # ✅ 필터링 기준 (2) 제품명이 "과자" 관련 제품인지 확인
+            has_valid_keyword = any(keyword in title for keyword in INCLUDE_KEYWORDS)
+
+            # 🔹 카테고리 정보가 없으면 키워드 필터링 적용
+            if is_valid_category or has_valid_keyword:
                 results.append({
                     "쇼핑몰": mall_name,
                     "상품명": title,
