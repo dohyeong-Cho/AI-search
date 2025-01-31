@@ -3,13 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>과자 가격 비교</title>
+    <title>AI 기반 과자 가격 비교</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #results { margin-top: 20px; }
+        table { width: 80%; margin: 0 auto; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ddd; }
+        th { background-color: #f4f4f4; }
+    </style>
 </head>
 <body>
-    <h1>과자 가격 비교 검색</h1>
-    <form action="/search" method="get">
-        <input type="text" name="product" placeholder="상품명을 입력하세요" required>
+    <h1>AI 기반 과자 가격 비교</h1>
+    <form id="searchForm">
+        <input type="text" id="product" placeholder="상품명을 입력하세요">
         <button type="submit">검색</button>
     </form>
+    <div id="results"></div>
+
+    <script>
+        document.getElementById("searchForm").onsubmit = function(event) {
+            event.preventDefault();
+            let query = document.getElementById("product").value;
+            fetch(`/search?product=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    let resultHtml = "<h2>검색 결과</h2>";
+                    resultHtml += "<table>";
+                    resultHtml += "<tr><th>쇼핑몰</th><th>상품명</th><th>가격</th><th>택배비</th><th>총 가격</th><th>신뢰도 점수</th><th>링크</th></tr>";
+                    
+                    data.forEach(item => {
+                        resultHtml += `
+                            <tr>
+                                <td>${item.쇼핑몰}</td>
+                                <td>${item.상품명}</td>
+                                <td>${item.가격}원</td>
+                                <td>${item.택배비}원</td>
+                                <td>${item.총 가격}원</td>
+                                <td>${item.신뢰도 점수}</td>
+                                <td><a href="${item.링크}" target="_blank">구매하기</a></td>
+                            </tr>
+                        `;
+                    });
+
+                    resultHtml += "</table>";
+                    document.getElementById("results").innerHTML = resultHtml;
+                })
+                .catch(error => console.error("Error:", error));
+        };
+    </script>
 </body>
 </html>
