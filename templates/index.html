@@ -3,34 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>과자 가격 비교</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>가격 비교 검색</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #results { margin-top: 20px; }
+        .product { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
+        .product a { text-decoration: none; color: blue; }
+    </style>
 </head>
 <body>
     <h1>과자 가격 비교</h1>
-    <form action="/search" method="get">
-        <input type="text" name="product" placeholder="상품명을 입력하세요" required>
+    <form id="searchForm">
+        <input type="text" id="product" placeholder="검색어 입력">
         <button type="submit">검색</button>
     </form>
+    <div id="results"></div>
 
-    {% if results %}
-    <h2>검색 결과</h2>
-    <table>
-        <tr>
-            <th>쇼핑몰</th>
-            <th>상품명</th>
-            <th>가격</th>
-            <th>링크</th>
-        </tr>
-        {% for item in results %}
-            <tr>
-                <td>{{ item.쇼핑몰 }}</td>
-                <td>{{ item.상품명 }}</td>
-                <td class="{% if loop.first %}lowest-price{% endif %}">{{ item.가격 }}원</td>
-                <td><a href="{{ item.링크 }}" class="shop-link" target="_blank">구매하기</a></td>
-            </tr>
-        {% endfor %}
-    </table>
-    {% endif %}
+    <script>
+    document.getElementById("searchForm").onsubmit = function(event) {
+        event.preventDefault();
+        let query = document.getElementById("product").value;
+
+        fetch(`/search?product=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                let resultHtml = "<h2>검색 결과</h2>";
+                data.forEach(item => {
+                    resultHtml += `
+                        <div class="product">
+                            <p><strong>${item.상품명}</strong></p>
+                            <p>가격: ${item.가격}원</p>
+                            <p>택배비: ${item.택배비}원</p>
+                            <p>총 가격: ${item.총 가격}원</p>
+                            <a href="${item.링크}" target="_blank">상품 보기</a>
+                        </div>
+                    `;
+                });
+                document.getElementById("results").innerHTML = resultHtml;
+            })
+            .catch(error => console.error("Error:", error));
+    };
+    </script>
 </body>
 </html>
