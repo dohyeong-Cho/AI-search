@@ -27,35 +27,33 @@ def get_naver_price(query):
     }
 
     response = requests.get(url, headers=headers)
-
+    
     if response.status_code == 200:
-        data = response.json()
-        items = data.get("items", [])
-        
-        results = []
+        items = response.json().get("items", [])
+        filtered_items = []
+
         for item in items:
-            try:
-                price = int(item["lprice"])
-                shipping_fee = 3000  # 🔹 기본 택배비 설정 (API에서 지원 안함)
-                total_price = price + shipping_fee
-                review_count = np.random.randint(10, 500)  # 🔹 리뷰 개수 (임의 값)
-                rating = np.random.uniform(3.0, 5.0)  # 🔹 평점 (임의 값)
+            category1 = item.get("category1", "")
+            category2 = item.get("category2", "")
+            category3 = item.get("category3", "")
+            category4 = item.get("category4", "")
 
-                # 🔹 AI 모델을 사용해 신뢰도 점수 예측
-                features = np.array([[price, shipping_fee, review_count, rating]])
-                trust_score = round(model.predict(features)[0], 2)
-
-                results.append({
+            # ✅ 필터링 기준: "과자/베이커리" & "스낵"만 포함
+            if category1 == "식품" and category2 == "과자/베이커리" and category3 == "스낵":
+                filtered_items.append({
                     "쇼핑몰": item["mallName"],
-                    "상품명": item["title"],
-                    "가격": price,
-                    "택배비": shipping_fee,
-                    "총 가격": total_price,
-                    "신뢰도 점수": trust_score,
-                    "링크": item["link"]
+                    "상품명": item["title"].replace("<b>", "").replace("</b>", ""),  # 🔥 HTML 태그 제거
+                    "가격": int(item["lprice"]),
+                    "링크": item["link"],
+                    "택배비": 0,  # 네이버 API에는 택배비 정보 없음
+                    "총 가격": int(item["lprice"]),  # 기본적으로 가격과 동일
+                    "신뢰도 점수": None  # AI 모델 적용 전 None
                 })
-            except:
-                continue
+        
+        return filtered_items
+    else:
+        return []
+
 
         # 🔹 신뢰도 점수를 기준으로 정렬
         results = sorted(results, key=lambda x: x["신뢰도 점수"], reverse=True)
