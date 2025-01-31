@@ -1,17 +1,19 @@
+import re
 from flask import Flask, request, jsonify, render_template
 import requests
-import re
 
 app = Flask(__name__)
 
 NAVER_CLIENT_ID = "8eesQ8IzEGDS4dHlqgqi"
 NAVER_CLIENT_SECRET = "hFGQkC2ErG"
 
+# 🔹 HTML 태그 제거 함수
 def strip_tags(text):
     return re.sub(r"<[^>]+>", "", text)
 
+# 🔹 네이버 쇼핑 API에서 "과자" 관련 제품만 필터링하는 함수
 def get_naver_price(query):
-    url = f"https://openapi.naver.com/v1/search/shop.json?query={query}&display=5&sort=asc"
+    url = f"https://openapi.naver.com/v1/search/shop.json?query={query}&display=10&sort=asc"
     headers = {
         "X-Naver-Client-Id": NAVER_CLIENT_ID,
         "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
@@ -22,20 +24,29 @@ def get_naver_price(query):
         data = response.json()
         items = data.get("items", [])
         results = []
+        
         for item in items:
-            results.append({
-                "쇼핑몰": item["mallName"],
-                "상품명": strip_tags(item["title"]),
-                "가격": int(item["lprice"]),
-                "링크": item["link"]
-            })
-        return results
+            title = strip_tags(item["title"])  # 🔹 HTML 태그 제거
+            mall_name = item["mallName"]
+            price = int(item["lprice"])
+            link = item["link"]
+
+            # 🔹 "과자", "스낵", "칩" 키워드가 포함된 상품만 필터링
+            if any(keyword in title for keyword in ["과자", "스낵", "칩"]):
+                results.append({
+                    "쇼핑몰": mall_name,
+                    "상품명": title,
+                    "가격": price,
+                    "링크": link
+                })
+        
+        return results  # 🔹 필터링된 결과만 반환
     return []
 
 # 🔹 메인 페이지 (검색 폼 제공)
 @app.route("/")
 def home():
-    return render_template("index.html")  # ✅ HTML 템플릿을 올바르게 렌더링해야 함
+    return render_template("index.html")
 
 # 🔹 검색 요청을 처리하는 API 엔드포인트
 @app.route("/search", methods=["GET"])
