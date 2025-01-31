@@ -3,9 +3,9 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
-import pickle  # 모델 저장
+import pickle  # 🔹 모델 저장을 위한 pickle 라이브러리 추가
 
-# 🔹 학습 데이터 생성 (예제 데이터)
+# 🔹 학습 데이터 생성
 data = {
     "가격": [1200, 1100, 900, 950, 1300, 1250, 800],
     "택배비": [3000, 2500, 5000, 3000, 3500, 4000, 6000],
@@ -36,7 +36,7 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 print("MAE (평균 절대 오차):", mean_absolute_error(y_test, y_pred))
 
-# 🔹 학습된 모델 저장 (API에서 활용 가능)
+# 🔹 학습된 모델 저장 (wb = 바이너리 쓰기 모드)
 with open("trust_score_model.pkl", "wb") as f:
     pickle.dump(model, f)
 
