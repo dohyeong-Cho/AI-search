@@ -4,8 +4,8 @@ import requests
 
 app = Flask(__name__)
 
-NAVER_CLIENT_ID = "네이버_Client_ID"
-NAVER_CLIENT_SECRET = "네이버_Client_Secret"
+NAVER_CLIENT_ID = "8eesQ8IzEGDS4dHlqgqi"
+NAVER_CLIENT_SECRET = "hFGQkC2ErG"
 
 # 🔹 HTML 태그 제거 함수
 def strip_tags(text):
