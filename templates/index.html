@@ -25,6 +25,8 @@
         document.getElementById("searchForm").onsubmit = function(event) {
             event.preventDefault();
             let query = document.getElementById("product").value;
+            
+            // 🔹 fetch 요청 (JavaScript 오류 수정)
             fetch(`/search?product=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
@@ -35,13 +37,13 @@
                     data.forEach(item => {
                         resultHtml += `
                             <tr>
-                                <td>${item.쇼핑몰}</td>
-                                <td>${item.상품명}</td>
-                                <td>${item.가격}원</td>
-                                <td>${item.택배비}원</td>
-                                <td>${item.총 가격}원</td>
-                                <td>${item.신뢰도 점수}</td>
-                                <td><a href="${item.링크}" target="_blank">구매하기</a></td>
+                                <td>${item["쇼핑몰"]}</td>
+                                <td>${item["상품명"]}</td>
+                                <td>${item["가격"]}원</td>
+                                <td>${item["택배비"]}원</td>
+                                <td>${item["총 가격"]}원</td>
+                                <td>${item["신뢰도 점수"]}</td>
+                                <td><a href="${item["링크"]}" target="_blank">구매하기</a></td>
                             </tr>
                         `;
                     });
