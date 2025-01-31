@@ -81,3 +81,22 @@ def search():
 # 🔹 Flask 실행
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
+# 🔹 응답 api 출력
+def get_naver_price(query):
+    url = f"https://openapi.naver.com/v1/search/shop.json?query={query}&display=10&sort=asc"
+    headers = {
+        "X-Naver-Client-Id": NAVER_CLIENT_ID,
+        "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
+    }
+
+    response = requests.get(url, headers=headers)
+    
+    print("네이버 API 응답 코드:", response.status_code)  # 추가된 로그
+    print("네이버 API 응답 내용:", response.json())  # 추가된 로그
+
+    if response.status_code == 200:
+        return response.json().get("items", [])
+    else:
+        return []
+
