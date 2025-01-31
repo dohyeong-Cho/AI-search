@@ -4,82 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>과자 가격 비교</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        body { font-family: Arial, sans-serif; }
-        #results { margin-top: 20px; }
-        .product { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
-        .product a { text-decoration: none; color: blue; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .lowest-price { font-weight: bold; color: red; }
-    </style>
 </head>
 <body>
-    <h1>과자 가격 비교</h1>
-    
-    <!-- 🔹 검색 폼 -->
-    <form id="searchForm">
-        <input type="text" id="product" placeholder="상품명을 입력하세요" required>
+    <h1>과자 가격 비교 검색</h1>
+    <form action="/search" method="get">
+        <input type="text" name="product" placeholder="상품명을 입력하세요" required>
         <button type="submit">검색</button>
     </form>
-
-    <!-- 🔹 검색 결과 표시 -->
-    <div id="results"></div>
-
-    <script>
-    document.getElementById("searchForm").onsubmit = function(event) {
-        event.preventDefault(); // 🔹 기본 폼 제출 방지
-
-        let query = document.getElementById("product").value;
-        if (!query) {
-            alert("검색어를 입력하세요!");
-            return;
-        }
-
-        fetch(`/search?product=${encodeURIComponent(query)}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("서버 오류");
-                }
-                return response.json();
-            })
-            .then(data => {
-                let resultHtml = "<h2>검색 결과</h2>";
-                resultHtml += `<table>
-                    <tr>
-                        <th>상품명</th>
-                        <th>가격</th>
-                        <th>택배비</th>
-                        <th>총 가격</th>
-                        <th>링크</th>
-                    </tr>`;
-
-                if (data.length === 0) {
-                    resultHtml += `<tr><td colspan="5">검색 결과가 없습니다.</td></tr>`;
-                } else {
-                    data.forEach(function(item) {  // 🔹 함수 표현식 사용 (템플릿 리터럴 충돌 방지)
-                        resultHtml += `
-                            <tr>
-                                <td>${item["상품명"]}</td>
-                                <td>${item["가격"]}원</td>
-                                <td>${item["택배비"]}원</td>
-                                <td>${item["총 가격"]}원</td>
-                                <td><a href="${item["링크"]}" target="_blank">구매하기</a></td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                resultHtml += `</table>`;
-                document.getElementById("results").innerHTML = resultHtml;
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("검색 중 오류가 발생했습니다.");
-            });
-    };
-    </script>
 </body>
 </html>
