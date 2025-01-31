@@ -11,9 +11,12 @@ NAVER_CLIENT_SECRET = "hFGQkC2ErG"
 def strip_tags(text):
     return re.sub(r"<[^>]+>", "", text)
 
-# 🔹 네이버 쇼핑 API에서 "과자" 관련 제품만 필터링하는 함수
+# 🔹 "과자(스낵류)" 카테고리 ID 목록 (네이버 쇼핑 API 기준)
+VALID_CATEGORY_IDS = ["50000169", "50000205", "50000206"]  # (예: 스낵, 감자칩, 과자)
+
+# 🔹 네이버 쇼핑 API에서 "과자 카테고리" 제품만 가져오는 함수
 def get_naver_price(query):
-    url = f"https://openapi.naver.com/v1/search/shop.json?query={query}&display=10&sort=asc"
+    url = f"https://openapi.naver.com/v1/search/shop.json?query={query}&display=20&sort=asc"
     headers = {
         "X-Naver-Client-Id": NAVER_CLIENT_ID,
         "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
@@ -27,19 +30,23 @@ def get_naver_price(query):
         
         for item in items:
             title = strip_tags(item["title"])  # 🔹 HTML 태그 제거
+            category = item.get("category4", "")  # 🔹 제품의 카테고리 ID 가져오기
             mall_name = item["mallName"]
             price = int(item["lprice"])
             link = item["link"]
 
-            # 🔹 "과자", "스낵", "칩" 키워드가 포함된 상품만 필터링
-            if any(keyword in title for keyword in ["과자", "스낵", "칩"]):
+            # ✅ 카테고리 ID가 과자(스낵류)인지 확인
+            if category in VALID_CATEGORY_IDS:
                 results.append({
                     "쇼핑몰": mall_name,
                     "상품명": title,
                     "가격": price,
                     "링크": link
                 })
-        
+
+        # ✅ 최저가 기준 정렬 (가격 순으로 정렬)
+        results = sorted(results, key=lambda x: x["가격"])
+
         return results  # 🔹 필터링된 결과만 반환
     return []
 
